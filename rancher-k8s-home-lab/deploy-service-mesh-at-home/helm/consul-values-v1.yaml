@@ -11,9 +11,9 @@ global:
   #image: hashicorp/consul-enterprise:1.13.2-ent
   #imageEnvoy: envoyproxy/envoy:v1.22.2
   # The prefix used for all resources created in the Helm chart.
-  enterpriseLicense:
-    secretName: 'consul-ent-license'
-    secretKey: 'key'
+  # enterpriseLicense:
+  #   secretName: 'consul-ent-license'
+  #   secretKey: 'key'
   # Enables TLS across the cluster to verify authenticity of the Consul servers and clients.
   tls:
     enabled: true

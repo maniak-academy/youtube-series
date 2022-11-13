@@ -116,7 +116,8 @@ Go into apps
   mkdir -p $HOME/.kube
   sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-
+ chmod 0600  $HOME/.kube/config
+ 
 # Install heml on machine
 curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
 sudo apt-get install apt-transport-https --yes
