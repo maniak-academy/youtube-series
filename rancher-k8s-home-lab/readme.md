@@ -6,37 +6,18 @@
 - 20HD
 
 For your home lab, i suggest you set static IPs
+sudo swapoff -a
 
-# Step 2 - Install Docker
+sudo vim /etc/fstab
 
-Instal Docker on all 3 servers 
+# Comment out lines that have the word swap on them
 
+sudo reboot
 
-
-```
-sudo apt-get update
-
-sudo apt-get install \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
-
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-  
-sudo apt-get update
-
-
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y 
+# Step 2 - create the install script and deploy it 
 
 
 
-```
 
 # Step 3 Install Docker Rancher 
 
@@ -59,7 +40,7 @@ docker run -d --restart=unless-stopped \
 Once docker has setup you will need to log in by getting the password
 
 Find your container ID with docker ps, then run:
-docker logs 170b36086f84-id 2>&1 | grep "Bootstrap Password:"
+docker logs 6d0c9cff9dc1 2>&1 | grep "Bootstrap Password:"
 
 # step 5 setup controler 
 
@@ -81,8 +62,6 @@ Once this is finish we will deploy  "worker" on iceman-01 -03
 - Show ranchger is making it happen
 
 # Step 6 we will install 
-
-sudo docker run -d --privileged --restart=unless-stopped --net=host -v /etc/kubernetes:/etc/kubernetes -v /var/run:/var/run  rancher/rancher-agent:v2.6.9 --server https://192.168.86.200 --token jt5vcmzx58hf6ws4g4sdrlmjvwvqbq29x8qfrvcbh9rxkcwgzsg85f --ca-checksum b3b830d31ecfb029f8edbd5ce7267814caba4e10348582c88d2878d4a0772232 --worker
 
 # Step 7.. watch rancher build 
 
@@ -141,6 +120,39 @@ data:
     - name: default
       protocol: layer2
       addresses:
-      - 192.168.86.50-192.168.86.55
+      - 192.168.86.110-192.168.86.115
 ```
 
+
+```
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ippool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.86.110-192.168.86.115
+```
+
+
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.86.110-192.168.86.115
+  autoAssign: true
+  
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: default
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - default
